@@ -68,7 +68,9 @@ public sealed class MqttConnection
                 EnqueueReconnect(TimeSpan.FromSeconds(_failedConnectionsAttempts == 0 ? 1 : _failedConnectionsAttempts * 3));
                 return Task.CompletedTask;
             }
-
+            
+            _reconnectTimer?.Dispose();
+            _reconnectTimer = null;
             _reconnectingEnabled = false;
             
             logger?.LogError(
@@ -179,11 +181,6 @@ public sealed class MqttConnection
 
     private void EnqueueReconnect(TimeSpan nextAttempt)
     {
-        if (_reconnectTimer is not null)
-        {
-            _reconnectTimer.Dispose();
-        }
-        
         _reconnectTimer = new Timer(nextAttempt.TotalMilliseconds);
         _reconnectTimer.Elapsed += async (_, _) =>
         {
