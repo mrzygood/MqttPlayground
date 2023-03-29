@@ -8,7 +8,7 @@ using Timer = System.Timers.Timer;
 
 namespace RawClient.Connections;
 
-public sealed class MqttConnection
+public sealed class MqttConnection : IDisposable
 {
     private readonly IMqttClient _client;
     private readonly MqttClientOptions _clientOptions;
@@ -23,6 +23,9 @@ public sealed class MqttConnection
     private Timer? _reconnectTimer;
 
     private readonly ILogger<MqttConnection>? _logger;
+
+    public bool IsStarted => _connectionRequested;
+    public bool HasSubscriptions => _topics.Any();
 
     public MqttConnection(
         MqttConnectionConfig connectionConfig,
@@ -85,9 +88,6 @@ public sealed class MqttConnection
             .WithCredentials(connectionConfig.Login, connectionConfig.Password)
             .Build();
     }
-
-    public bool Started => _connectionRequested;
-    public bool HasSubscriptions => _topics.Any();
 
     public bool HasSubscriber(string topic)
     {
@@ -196,5 +196,10 @@ public sealed class MqttConnection
         };
         _reconnectTimer.AutoReset = false;
         _reconnectTimer.Enabled = true;
+    }
+
+    public void Dispose()
+    {
+        _reconnectTimer?.Dispose();
     }
 }

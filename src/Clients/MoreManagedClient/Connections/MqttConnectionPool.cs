@@ -43,7 +43,7 @@ public sealed class MqttConnectionPool : IMqttConnectionPool
         }
 
         var connection = _connections[connectionKey];
-        if (connection.Started)
+        if (connection.IsStarted)
         {
             await connection.DisconnectAsync();
         }
@@ -60,7 +60,7 @@ public sealed class MqttConnectionPool : IMqttConnectionPool
         }
 
         var connection = _connections[connectionKey];
-        if (connection.Started is false)
+        if (connection.IsStarted is false)
         {
             await connection.ConnectAsync();
         }
@@ -79,7 +79,7 @@ public sealed class MqttConnectionPool : IMqttConnectionPool
         var connection = _connections[connectionKey];
         await connection.RemoveSubscription(topics);
 
-        if (connection.Started && connection.HasSubscriptions is false)
+        if (connection.IsStarted && connection.HasSubscriptions is false)
         {
             await DisconnectAsync(brokerId);
         }

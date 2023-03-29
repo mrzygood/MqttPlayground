@@ -15,6 +15,9 @@ public sealed class MqttConnection
     private bool _connectionRequested;
     private bool _disconnectionRequested;
 
+    public bool IsStarted => _connectionRequested;
+    public bool HasSubscriptions => _topics.Any();
+
     public MqttConnection(
         MqttConnectionConfig connectionConfig,
         Func<string, string, Task> messageHandler,
@@ -66,9 +69,6 @@ public sealed class MqttConnection
             .WithClientOptions(mqttClientOptions)
             .Build();
     }
-
-    public bool Started => _connectionRequested;
-    public bool HasSubscriptions => _topics.Any();
 
     public bool HasSubscriber(string topic)
     {
