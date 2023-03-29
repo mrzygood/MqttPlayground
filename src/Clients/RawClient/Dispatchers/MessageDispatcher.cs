@@ -11,7 +11,7 @@ public class MessageDispatcher : IMessageDispatcher
 
     public Task DispatchAsync(string topic, string messageAsJson)
     {
-        _logger.LogDebug(
+        _logger.LogInformation(
             "Message on topic: {topicName} dispatched. Content: {messageContent}",
             topic,
             messageAsJson);

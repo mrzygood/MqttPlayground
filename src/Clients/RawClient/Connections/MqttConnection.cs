@@ -163,7 +163,6 @@ public sealed class MqttConnection
             return;
         }
 
-        // await _client.SubscribeAsync(new MqttTopicFilter().Topic = topic);
         await _client.SubscribeAsync(topic);
         _topics.Add(topic);
     }
