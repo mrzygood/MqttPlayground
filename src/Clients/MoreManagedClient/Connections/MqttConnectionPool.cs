@@ -31,7 +31,7 @@ public sealed class MqttConnectionPool : IMqttConnectionPool
             connectionLogger);
         _connections[broker.Id] = newConnection;
 
-        var (isConnected, resultStatus) = await newConnection.ConnectAsync();
+        await newConnection.ConnectAsync();
     }
 
     public async Task DisconnectAsync(Guid brokerId)

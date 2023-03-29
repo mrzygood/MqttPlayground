@@ -1,11 +1,7 @@
-﻿using System.Net.Sockets;
-using System.Text;
+﻿using System.Text;
 using MQTTnet;
-using MQTTnet.Adapter;
 using MQTTnet.Client;
-using MQTTnet.Exceptions;
 using MQTTnet.Extensions.ManagedClient;
-using Timer = System.Timers.Timer;
 
 namespace MoreManagedClient.Connections;
 
@@ -18,12 +14,6 @@ public sealed class MqttConnection
     
     private bool _connectionRequested;
     private bool _disconnectionRequested;
-    private int _failedConnectionsAttempts;
-
-    private bool _reconnectingEnabled;
-    private Timer? _reconnectTimer;
-
-    private readonly ILogger<MqttConnection>? _logger;
 
     public MqttConnection(
         MqttConnectionConfig connectionConfig,
@@ -72,6 +62,7 @@ public sealed class MqttConnection
         };
 
         _clientOptions = new ManagedMqttClientOptionsBuilder()
+            .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
             .WithClientOptions(mqttClientOptions)
             .Build();
     }
@@ -100,39 +91,16 @@ public sealed class MqttConnection
         }
     }
 
-    public async Task<(bool ConnectedSuccesfully, MqttConnectionStatus status)> ConnectAsync()
+    public async Task ConnectAsync()
     {
         _connectionRequested = true;
         
         if (_client.IsConnected)
         {
-            return (true, MqttConnectionStatus.Connected);
+            return;
         }
 
-        try
-        {
-            await _client.StartAsync(_clientOptions);
-        }
-        catch (MqttConnectingFailedException exception)
-        {
-            if (exception.Message.Contains("BadUserNameOrPassword"))
-            {
-                return (false, MqttConnectionStatus.InvalidCredentials);
-            }
-
-            return (false, MqttConnectionStatus.Unspecified);
-        }
-        catch (MqttCommunicationException exception)
-        {
-            if (exception.InnerException is SocketException)
-            {
-                return (false, MqttConnectionStatus.NetworkIssue);
-            }
-            
-            return (false, MqttConnectionStatus.Unspecified);
-        }
-        
-        return (true, MqttConnectionStatus.Connected);
+        await _client.StartAsync(_clientOptions);
     }
 
     public async Task DisconnectAsync()
@@ -166,25 +134,5 @@ public sealed class MqttConnection
 
         await _client.UnsubscribeAsync(topic);
         _topics.Remove(topic);
-    }
-
-    private void EnqueueReconnect(TimeSpan nextAttempt)
-    {
-        _reconnectTimer = new Timer(nextAttempt.TotalMilliseconds);
-        _reconnectTimer.Elapsed += async (_, _) =>
-        {
-            var attempt = _failedConnectionsAttempts + 1;
-            try
-            {
-                _failedConnectionsAttempts++;
-                await _client.StartAsync(_clientOptions);
-            }
-            catch (Exception)
-            {
-                _logger?.LogWarning($"Reconnection no. {attempt} failed");
-            }
-        };
-        _reconnectTimer.AutoReset = false;
-        _reconnectTimer.Enabled = true;
     }
 }
