@@ -41,11 +41,10 @@ public sealed class MqttConnection
 
         _client.ApplicationMessageReceivedAsync += async messageArguments => await HandleMessage(messageArguments, messageHandler);
         _client.ConnectedAsync += HandleSuccessfulConnection;
-        _client.ConnectingFailedAsync += async x => await HandleFailedConnection(x);
-        _client.DisconnectedAsync += async x => await HandleDisconnection(x);
+        _client.ConnectingFailedAsync += HandleFailedConnection;
+        _client.DisconnectedAsync += HandleDisconnection;
         
         _clientOptions = new ManagedMqttClientOptionsBuilder()
-            .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
             .WithClientOptions(mqttClientOptions)
             .Build();
     }
@@ -136,9 +135,9 @@ public sealed class MqttConnection
         return Task.CompletedTask;
     }
 
-    private Task HandleDisconnection(MqttClientDisconnectedEventArgs arguments)
+    private async Task HandleDisconnection(MqttClientDisconnectedEventArgs arguments)
     {
-        _disconnectedAt = DateTime.UtcNow;
+        _disconnectedAt ??= DateTime.UtcNow;
 
         if (_reconnectionAttempts > 0)
         {
@@ -149,16 +148,13 @@ public sealed class MqttConnection
                 _reconnectionAttempts);
         }
 
-        if (_disconnectionRequested is false)
-        {
-            UpdateReconnectionStrategy();
-        }
-        else
+        if (_disconnectionRequested)
         {
             _logger?.LogDebug("Disconnected from MQTT broker with address '{brokerAddress}'", BrokerAddress);
+            return;
         }
-
-        return Task.CompletedTask;
+        
+        await UpdateReconnectionStrategyAsync();
     }
 
     private async Task HandleFailedConnection(ConnectingFailedEventArgs arguments)
@@ -176,8 +172,17 @@ public sealed class MqttConnection
         }
     }
 
-    private void UpdateReconnectionStrategy()
+    private async Task UpdateReconnectionStrategyAsync()
     {
+        if (_disconnectedAt is not null)
+        {
+            var isMaxReconnectionDurationExceeded = (DateTime.UtcNow - _disconnectedAt.Value).TotalMinutes >= 10;
+            if (isMaxReconnectionDurationExceeded)
+            {
+                await _client.StopAsync();
+            }
+        }
+        
         var reconnectionFrequencyPower = _reconnectionAttempts;
         if (_reconnectionAttempts >= 8)
         {
