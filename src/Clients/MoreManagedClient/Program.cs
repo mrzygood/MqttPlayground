@@ -57,4 +57,18 @@ app.MapGet("/subscribe-topic", async (
     await connectionPool.AddListenersAsync(brokerId, new List<string>() { topic });
 });
 
+app.MapGet("/stop-broker", async (
+    IBrokerRepository brokerRepository,
+    IMqttConnectionPool connectionPool,
+    Guid id) =>
+{
+    var broker = await brokerRepository.GetAsync(id);
+    if (broker is null)
+    {
+        throw new Exception($"Broker {id} not found");
+    }
+    
+    await connectionPool.DisconnectAsync(id);
+});
+
 app.Run();

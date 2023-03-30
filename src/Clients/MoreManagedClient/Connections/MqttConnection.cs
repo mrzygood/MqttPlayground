@@ -73,6 +73,7 @@ public sealed class MqttConnection
     public async Task ConnectAsync()
     {
         _connectionRequested = true;
+        _disconnectionRequested = false;
         
         if (_client.IsConnected)
         {
