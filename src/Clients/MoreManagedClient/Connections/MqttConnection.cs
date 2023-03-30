@@ -9,61 +9,41 @@ public sealed class MqttConnection
 {
     private readonly IManagedMqttClient _client;
     private readonly ManagedMqttClientOptions _clientOptions;
+    private readonly ILogger<MqttConnection>? _logger;
 
-    private readonly List<string> _topics = new ();
-    
     private bool _connectionRequested;
+    private int _reconnectionAttempts;
     private bool _disconnectionRequested;
+    private DateTime? _disconnectedAt;
+    
+    private readonly List<string> _topics = new ();
 
     public bool IsStarted => _connectionRequested;
     public bool HasSubscriptions => _topics.Any();
+
+    private string BrokerAddress => _client.Options.ClientOptions.ChannelOptions.ToString() ?? string.Empty;
 
     public MqttConnection(
         MqttConnectionConfig connectionConfig,
         Func<string, string, Task> messageHandler,
         ILogger<MqttConnection>? logger = null)
     {
+        _logger = logger;
+        
         var mqttFactory = new MqttFactory();
-
         _client = mqttFactory.CreateManagedMqttClient();
 
         var mqttClientOptions = new MqttClientOptionsBuilder()
+            .WithCleanSession()
             .WithTcpServer(connectionConfig.Url, connectionConfig.Port)
             .WithCredentials(connectionConfig.Login, connectionConfig.Password)
             .Build();
 
-        _client.ApplicationMessageReceivedAsync += async messageArguments =>
-        {
-            var messageJson = Encoding.UTF8.GetString(messageArguments.ApplicationMessage.Payload);
-            await messageHandler(messageArguments.ApplicationMessage.Topic, messageJson);
-        };
-
-        _client.ConnectedAsync += _ =>
-        {
-            logger?.LogInformation(
-                "Connected to MQTT broker with address '{mqttBrokerAddress}'",
-                connectionConfig.GetAddress());
-            return Task.CompletedTask;
-        };
-
-        _client.ConnectingFailedAsync += connectionFailedEvent =>
-        {
-            logger?.LogError(
-                "Connection to MQTT broker with address '{mqttBrokerAddress}' failed. Reason {mqttConnectionFailedReason}",
-                connectionConfig.GetAddress(),
-                connectionFailedEvent.Exception.Message);
-            return Task.CompletedTask;
-        };
-
-        _client.DisconnectedAsync += disconnectedEvent =>
-        {
-            logger?.LogError(
-                "Disconnected from MQTT broker with address '{brokerAddress}' failed. Reason {mqttDisconnectedReason}",
-                connectionConfig.GetAddress(),
-                disconnectedEvent.ReasonString);
-            return Task.CompletedTask;
-        };
-
+        _client.ApplicationMessageReceivedAsync += async messageArguments => await HandleMessage(messageArguments, messageHandler);
+        _client.ConnectedAsync += HandleSuccessfulConnection;
+        _client.ConnectingFailedAsync += async x => await HandleFailedConnection(x);
+        _client.DisconnectedAsync += async x => await HandleDisconnection(x);
+        
         _clientOptions = new ManagedMqttClientOptionsBuilder()
             .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
             .WithClientOptions(mqttClientOptions)
@@ -134,5 +114,79 @@ public sealed class MqttConnection
 
         await _client.UnsubscribeAsync(topic);
         _topics.Remove(topic);
+    }
+
+    private async Task HandleMessage(
+        MqttApplicationMessageReceivedEventArgs arguments,
+        Func<string, string, Task> handler)
+    {
+        var messageJson = Encoding.UTF8.GetString(arguments.ApplicationMessage.Payload);
+        await handler(arguments.ApplicationMessage.Topic, messageJson);
+    }
+
+    private Task HandleSuccessfulConnection(MqttClientConnectedEventArgs arguments)
+    {
+        _disconnectedAt = null;
+        _reconnectionAttempts = 0;
+            
+        _logger?.LogInformation(
+            "Connected to MQTT broker with address '{mqttBrokerAddress}'",
+            _client.Options.ClientOptions.ChannelOptions.ToString());
+            
+        return Task.CompletedTask;
+    }
+
+    private Task HandleDisconnection(MqttClientDisconnectedEventArgs arguments)
+    {
+        _disconnectedAt = DateTime.UtcNow;
+
+        if (_reconnectionAttempts > 0)
+        {
+            _logger?.LogInformation(
+                "Reconnection to MQTT broker with address '{brokerAddress}' failed. " +
+                "Attempt: {reconnectionAttemptNumber}",
+                BrokerAddress,
+                _reconnectionAttempts);
+        }
+
+        if (_disconnectionRequested is false)
+        {
+            UpdateReconnectionStrategy();
+        }
+        else
+        {
+            _logger?.LogDebug("Disconnected from MQTT broker with address '{brokerAddress}'", BrokerAddress);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleFailedConnection(ConnectingFailedEventArgs arguments)
+    {
+        _logger?.LogError(
+            "Connection to MQTT broker with address '{mqttBrokerAddress}' failed. " +
+            "Reason: {mqttConnectionFailedReason}",
+            BrokerAddress,
+            arguments.Exception.InnerException?.Message); 
+        
+        var invalidCredentialsCodeName = nameof(MqttClientConnectResultCode.BadUserNameOrPassword);
+        if (arguments.Exception.Message.Contains(invalidCredentialsCodeName))
+        {
+            await _client.StopAsync();
+        }
+    }
+
+    private void UpdateReconnectionStrategy()
+    {
+        var reconnectionFrequencyPower = _reconnectionAttempts;
+        if (_reconnectionAttempts >= 8)
+        {
+            reconnectionFrequencyPower = 8;
+        }
+
+        _reconnectionAttempts++;
+            
+        var reconnectDelay = (int)Math.Pow(2, reconnectionFrequencyPower);
+        _client.Options.AutoReconnectDelay = TimeSpan.FromSeconds(reconnectDelay);
     }
 }
