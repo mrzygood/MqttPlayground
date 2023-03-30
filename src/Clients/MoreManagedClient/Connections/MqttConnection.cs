@@ -85,7 +85,7 @@ public sealed class MqttConnection
 
     public async Task DisconnectAsync()
     {
-        if (_connectionRequested is false || _disconnectionRequested)
+        if (_connectionRequested is false || _disconnectionRequested || _client.IsStarted is false)
         {
             return;
         }
