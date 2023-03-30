@@ -139,6 +139,12 @@ public sealed class MqttConnection
     {
         _disconnectedAt ??= DateTime.UtcNow;
 
+        if (_disconnectionRequested)
+        {
+            _logger?.LogDebug("Disconnected from MQTT broker with address '{brokerAddress}'", BrokerAddress);
+            return;
+        }
+
         if (_reconnectionAttempts > 0)
         {
             _logger?.LogInformation(
@@ -147,23 +153,22 @@ public sealed class MqttConnection
                 BrokerAddress,
                 _reconnectionAttempts);
         }
-
-        if (_disconnectionRequested)
-        {
-            _logger?.LogDebug("Disconnected from MQTT broker with address '{brokerAddress}'", BrokerAddress);
-            return;
-        }
         
         await UpdateReconnectionStrategyAsync();
     }
 
     private async Task HandleFailedConnection(ConnectingFailedEventArgs arguments)
     {
+        if (_disconnectionRequested)
+        {
+            return;
+        }
+        
         _logger?.LogError(
             "Connection to MQTT broker with address '{mqttBrokerAddress}' failed. " +
             "Reason: {mqttConnectionFailedReason}",
             BrokerAddress,
-            arguments.Exception.InnerException?.Message); 
+            arguments.Exception.InnerException?.Message ?? arguments.Exception.Message);
         
         var invalidCredentialsCodeName = nameof(MqttClientConnectResultCode.BadUserNameOrPassword);
         if (arguments.Exception.Message.Contains(invalidCredentialsCodeName))
