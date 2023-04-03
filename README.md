@@ -118,26 +118,6 @@ This is called a graceful shutdown because it gives the client the ability to ea
 Should the disconnect happen suddenly without time for a publisher to send a DISCONNECT message, the broker may send subscribers a message from the publisher that the broker has previously cached.
 The message, which is called a last will and testament, provides subscribers with instructions for what to do if the publisher dies unexpectedly[2].
 
-### More
-
-#### What is MQTT over WSS?
-MQTT over WebSockets (WSS) is an MQTT implementation to receive data directly into a web browser.
-The MQTT protocol defines a JavaScript client to provide WSS support for browsers.
-In this case, the protocol works as usual but it adds additional headers to the MQTT messages to also support the WSS protocol.
-You can think of it as the MQTT message payload wrapped in a WSS envelope.
-
-
-Version 5.0
-
-In 2019, OASIS released the official MQTT 5.0 standard.[1] Version 5.0 includes the following major new features:[22]
-
-* Reason codes: Acknowledgements now support return codes, which provide a reason for a failure.
-* Shared subscriptions: Allow the load to be balanced across clients and thus reduce the risk of load problems.
-* Message expiry: Messages can include an expiry date and are deleted if they are not delivered within this time period.
-* Topic alias: The name of a topic can be replaced with a single number.
-
-#### Clouds vs MQTT
-
 #### Vhosts
 
 MQTT does not support vhosts natively. 
@@ -164,7 +144,11 @@ and are to be avoided, the same goes for AMQP 0-9-1 routing keys that contains s
 
 Retained messages can be stored in RAM or on disk (max 2BG per vhost).
 
-Vhost with MQTT plugin: https://www.rabbitmq.com/mqtt.html#virtual-hosts.
+##### Connecting to other vhosts
+Virtual host name can be passed as part of username (separated by colon): `my-vhost:mqtt-john`.
+It means you are connecting to `my-vhost` with username `mqtt-john`.
+
+More details about RabbitMQ with MQTT plugin: https://www.rabbitmq.com/mqtt.html
 
 #### RabbitMQ vs MQTT
 RabbitMQ and MQTT are both popular message brokers that are widely used in modern distributed systems.
@@ -181,14 +165,35 @@ storage, while MQTT does not provide built-in persistence.
 * Complexity: RabbitMQ is a more complex message broker and requires more
 configuration and management than MQTT, which is simpler and easier to use.
 
+## More
+
+#### What is MQTT over WSS?
+MQTT over WebSockets (WSS) is an MQTT implementation to receive data directly into a web browser.
+The MQTT protocol defines a JavaScript client to provide WSS support for browsers.
+In this case, the protocol works as usual but it adds additional headers to the MQTT messages to also support the WSS protocol.
+You can think of it as the MQTT message payload wrapped in a WSS envelope.
+
+#### Version 5.0
+
+In 2019, OASIS released the official MQTT 5.0 standard. Version 5.0 includes the following major new features:
+
+* Reason codes: Acknowledgements now support return codes, which provide a reason for a failure.
+* Shared subscriptions: Allow the load to be balanced across clients and thus reduce the risk of load problems.
+* Message expiry: Messages can include an expiry date and are deleted if they are not delivered within this time period.
+* Topic alias: The name of a topic can be replaced with a single number[3].
+
+#### Clouds vs MQTT
+TODO
+
+#### MQTTnet
+
  TODO:
-vhost in username
 More about https://github.com/dotnet/MQTTnet
 
-Sources:
-[1] https://aws.amazon.com/what-is/mqtt/
-[2] https://www.techtarget.com/iotagenda/definition/MQTT-MQ-Telemetry-Transport
-[3] https://en.wikipedia.org/wiki/MQTT
-[4] https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/
-[5] https://www.hivemq.com/blog/mqtt-essentials-part-7-persistent-session-queuing-messages/
-[6] https://www.rabbitmq.com/mqtt.html
+Sources:  
+[1] https://aws.amazon.com/what-is/mqtt/  
+[2] https://www.techtarget.com/iotagenda/definition/MQTT-MQ-Telemetry-Transport  
+[3] https://en.wikipedia.org/wiki/MQTT  
+[4] https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/  
+[5] https://www.hivemq.com/blog/mqtt-essentials-part-7-persistent-session-queuing-messages/  
+[6] https://www.rabbitmq.com/mqtt.html  
