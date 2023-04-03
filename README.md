@@ -190,6 +190,9 @@ TODO
  TODO:
 More about https://github.com/dotnet/MQTTnet
 
+#### WARNING!
+Not thread-safe implementation.
+
 Sources:  
 [1] https://aws.amazon.com/what-is/mqtt/  
 [2] https://www.techtarget.com/iotagenda/definition/MQTT-MQ-Telemetry-Transport  
