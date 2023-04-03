@@ -1,0 +1,27 @@
+﻿version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "5672:5672"
+      - "8080:15672"
+      - "1885:1885"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /usr/share/zoneinfo/Europe/Warsaw:/etc/localtime:ro
+      - ./docker/data/rabbitmq:/var/lib/rabbitmq/mnesia
+    command: "/bin/bash -c \"rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt rabbitmq_amqp1_0; rabbitmq-server\""
+    environment:
+      - "RABBITMQ_DEFAULT_USER=admin"
+      - "RABBITMQ_DEFAULT_PASS=Zaqwsx1@"
+    networks:
+      - mqttplayground
+
+networks:
+  mqttplayground:
+    name: mqttplayground
+    attachable: true

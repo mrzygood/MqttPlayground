@@ -17,7 +17,7 @@ app.MapGet("/add-broker", async (
     IMqttConnectionPool connectionPool,
     string login, string password, string? brokerUrl, int? port) =>
 {
-    var broker = new Broker(Guid.NewGuid(), brokerUrl ?? "localhost", port ?? 1884, login, password);
+    var broker = new Broker(Guid.NewGuid(), brokerUrl ?? "localhost", port ?? 1883, login, password);
     await brokerRepository.AddAsync(broker);
     await connectionPool.ConnectAsync(broker);
     return Results.Ok(broker.Id);
