@@ -3,7 +3,7 @@ The MQTT protocol was invented in 1999 for use in the oil and gas industry (for 
 Engineers needed a protocol for minimal bandwidth and minimal battery loss to monitor oil pipelines via satellite.
 Today is the leading open source protocol for connecting internet of things.
 The protocol has applications in industries ranging from automotive to energy to telecommunications.
-It must run over a transport protocol that provides ordered, lossless, bi-directional connections—typically, TCP/IP[3].
+It must run over a transport protocol that provides ordered, lossless, bi-directional connections—typically, TCP/IP[3].  
 Exists MQTT-SN which is used over other transports such as UDP or Bluetooth.
 
 Main advantages:
@@ -19,18 +19,18 @@ Works on the principles of the publish/subscribe (pub/sub) model (publisher=>bro
 Main advantages of this architecture:
 * Space decoupling.
   The publisher and subscriber are not aware of each other’s network location and do not exchange information such as IP addresses or port numbers.
-* Time decoupling
+* Time decoupling.
   The publisher and subscriber don’t run or have network connectivity at the same time.
-* Synchronization decoupling
+* Synchronization decoupling.
   Both publishers and subscribers can send or receive messages without interrupting each other. For example, the subscriber does not have to wait for the publisher to send a message.
 
 If a broker receives a message on a topic for which there are no current subscribers, the broker discards the message 
 unless the publisher of the message designated the message as a retained message (retained flag set to true)[3].
 
 ### Reliability levels:
-* (0) At most once - fire and forget
-* (1) At least once - sends message until receive acknowledge
-* (2) exactly once - two-level handshake
+* (0) At most once - fire and forget.
+* (1) At least once - sends message until receive acknowledge.
+* (2) exactly once - two-level handshake*.
 
 ### Security
 It has a minimal authentication feature built in. Username and password are sent as clear text. To make it secure, Secure Sockets Layer (SSL)/ Transport Layer Security (TLS) must be employed, but SSL/TLS is not a lightweight protocol.
@@ -61,26 +61,27 @@ The broker stores the following information:
 * All new QoS 1 or 2 messages that the client missed while offline.
 * All QoS 2 messages received from the client that are not yet completely acknowledged.
 
-The clientId that the client provides when it establishes connection to the broker identifies the session
+The clientId that the client provides when it establishes connection to the broker identifies the session.
 Usually, the memory limit of the operating system is the primary constraint on message storage[5].
 
 #### Messages
 Each message consists of a fixed header - 2 bytes - an optional variable header, a message payload that is limited to 256 megabytes (MB) of information and a quality of service (QoS) level.
-MQTT supports message binary large objects (BLOBs) up to 256 MB in size. The format of the content will be application-specific.
+The format of the content will be application-specific.
 
-When new subscriber appear it may not receive any message for long time if you publish messages rarely.
+###### Retained messages
+When new subscriber appear it may not receive any message for long time if messages are publish rarely.
 But you can mark messages as retained. Retained message is stored and sends to every to subscriber.
 The broker stores only one retained message per topic.
 There is also a very simple way to delete the retained message of a topic: send a retained message with a zero-byte payload on the topic where you want to delete the previous retained message.
 
 ##### Topic
-The term 'topic' refers to keywords the MQTT broker uses to filter messages for the MQTT clients.
+The term "topic" refers to keywords the MQTT broker uses to filter messages for the MQTT clients.
 Topics are organized hierarchically, similar to a file or folder directory with the use of a special delimiter character, the forward slash (/).
 
 ###### Special wildcard characters
 * `+` - a single-level wildcard character.
-* `#` - must be placed as the last character in the topic and preceded by a forward slash.
-  You can specify multi-level wildcard as a topic (#) but it means you receive all messages that are sent to the MQTT broker.
+* `#` - must be placed as the last character in the topic and preceded by a forward slash.  
+  Note: You can specify multi-level wildcard as a topic (#) but it means you receive all messages that are sent to the MQTT broker.
   It may decrease efficiency.
 * `$` - special topic character. Is reserved for internal statistics of broker. Clients cannot publish there.
 
@@ -88,12 +89,12 @@ The client does not need to create the desired topic before they publish or subs
 The broker accepts each valid topic without any prior initialization.
 
 Example topic:`robot/wheel/velocity`
-* robot, wheel, velocity - topic levels
+* `robot, wheel, velocity` - topic levels
 * `/` - topic level separator
 
 Anyone who subscribes to specific topic receives a copy of all messages for that topic[2].
 
-###### Best practices[4]
+###### Best practices
 * Never use a leading forward slash.
   The leading forward slash introduces an unnecessary topic level with a zero character at the front.
   The zero does not provide any benefit and often leads to confusion.
@@ -105,8 +106,8 @@ Anyone who subscribes to specific topic receives a copy of all messages for that
 * Don’t subscribe to `#`.
 * Use specific topics, not general ones.
   When you name topics, don’t use them in the same way as in a queue.
-  Differentiate your topics as much as possible
-* Don’t forget extensibility. Think about future use-cases to allow yourself extend existing topics easily.
+  Differentiate your topics as much as possible.
+* Don’t forget extensibility. Think about future use-cases to allow yourself extend existing topics easily[4].
 
 ##### Ping
 This packet sequence roughly translates to ARE YOU ALIVE/YES I AM ALIVE.
@@ -115,7 +116,9 @@ This operation has no other function than to maintain a live connection and ensu
 ##### Disconnect
 When a publisher or subscriber wants to terminate an MQTT session, it sends a DISCONNECT message to the broker and then closes the connection.
 This is called a graceful shutdown because it gives the client the ability to easily reconnect by providing its client identity and resuming where it left off.
-Should the disconnect happen suddenly without time for a publisher to send a DISCONNECT message, the broker may send subscribers a message from the publisher that the broker has previously cached.
+
+###### Last will
+Disconnect can happen suddenly without time for a publisher to send a DISCONNECT message. The broker may send subscribers a message from the publisher that the broker has previously cached.
 The message, which is called a last will and testament, provides subscribers with instructions for what to do if the publisher dies unexpectedly[2].
 
 #### Vhosts

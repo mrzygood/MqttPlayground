@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawClient", "src\Clients\Ra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreManagedClient", "src\Clients\MoreManagedClient\MoreManagedClient.csproj", "{7715441D-E1E1-434C-B887-3B81E0CEA637}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Apps\Apps\Apps.csproj", "{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{7715441D-E1E1-434C-B887-3B81E0CEA637}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7715441D-E1E1-434C-B887-3B81E0CEA637}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7715441D-E1E1-434C-B887-3B81E0CEA637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
