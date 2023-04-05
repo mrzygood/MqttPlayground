@@ -8,7 +8,7 @@ services:
     ports:
       - "1883:1883"
       - "5672:5672"
-      - "8080:15672"
+      - "8082:15672"
       - "1885:1885"
     volumes:
       - /etc/timezone:/etc/timezone:ro
