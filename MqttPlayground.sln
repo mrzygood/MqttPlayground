@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{071F76A7-2A64-4CCA-8556-4B602427810F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawClient", "src\Clients\RawClient\RawClient.csproj", "{D84568FD-99E8-48A0-8F77-9E668D18A838}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreManagedClient", "src\Clients\MoreManagedClient\MoreManagedClient.csproj", "{7715441D-E1E1-434C-B887-3B81E0CEA637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apps", "src\Apps\Apps\Apps.csproj", "{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleAppWithSingleTopicListener", "src\Apps\SimpleAppWithSingleTopicListener\SimpleAppWithSingleTopicListener.csproj", "{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{8B65A748-5F4C-49B7-8874-1A33860AE271}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,8 +20,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D84568FD-99E8-48A0-8F77-9E668D18A838} = {071F76A7-2A64-4CCA-8556-4B602427810F}
-		{7715441D-E1E1-434C-B887-3B81E0CEA637} = {071F76A7-2A64-4CCA-8556-4B602427810F}
+		{7715441D-E1E1-434C-B887-3B81E0CEA637} = {8B65A748-5F4C-49B7-8874-1A33860AE271}
+		{D84568FD-99E8-48A0-8F77-9E668D18A838} = {8B65A748-5F4C-49B7-8874-1A33860AE271}
+		{0CC19D22-1310-46B5-B27B-AC4AF0C31FC9} = {8B65A748-5F4C-49B7-8874-1A33860AE271}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D84568FD-99E8-48A0-8F77-9E668D18A838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

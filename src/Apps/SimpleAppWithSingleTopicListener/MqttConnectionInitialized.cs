@@ -1,4 +1,4 @@
-﻿namespace Apps;
+﻿namespace SingleListener;
 
 public sealed class MqttConnectionInitialized : IHostedService
 {

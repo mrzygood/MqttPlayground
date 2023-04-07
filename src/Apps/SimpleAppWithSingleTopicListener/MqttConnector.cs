@@ -3,9 +3,8 @@ using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
-using Newtonsoft.Json;
 
-namespace Apps;
+namespace SingleListener;
 
 public interface IMqttConnector
 {
@@ -18,7 +17,6 @@ public sealed class MqttConnector : IMqttConnector
 {
     private IManagedMqttClient? _client;
     private readonly MqttConnectionConfig _config;
-    private readonly IDictionary<string, Func<Task>> _handlers;
     
     public MqttConnector(IOptions<MqttConnectionConfig> config)
     {
@@ -66,16 +64,4 @@ public sealed class MqttConnector : IMqttConnector
     {
         await _client.SubscribeAsync(topic);
     }
-
-    // public async Task PublishAsync(string topic, object payload)
-    // {
-    //     var payloadAsString = JsonConvert.SerializeObject(payload);
-    //     await _client.EnqueueAsync(topic, payloadAsString);
-    // }
-    //
-    // public async Task SubscribeAsync(string topic, Func<Task> handler)
-    // {
-    //     _handlers[topic] = handler;
-    //     await _client.SubscribeAsync(topic);
-    // }
 }
