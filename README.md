@@ -166,17 +166,9 @@ requires additional middleware to achieve high scalability.
 * Persistence: RabbitMQ supports both in-memory and disk-based message
 storage, while MQTT does not provide built-in persistence.
 * Complexity: RabbitMQ is a more complex message broker and requires more
-configuration and management than MQTT, which is simpler and easier to use.
+configuration and management than MQTT, which is simpler and easier to use[7].
 
-## More
-
-#### What is MQTT over WSS?
-MQTT over WebSockets (WSS) is an MQTT implementation to receive data directly into a web browser.
-The MQTT protocol defines a JavaScript client to provide WSS support for browsers.
-In this case, the protocol works as usual but it adds additional headers to the MQTT messages to also support the WSS protocol.
-You can think of it as the MQTT message payload wrapped in a WSS envelope.
-
-#### Version 5.0
+#### MQTT Version 5.0
 
 In 2019, OASIS released the official MQTT 5.0 standard. Version 5.0 includes the following major new features:
 
@@ -185,16 +177,12 @@ In 2019, OASIS released the official MQTT 5.0 standard. Version 5.0 includes the
 * Message expiry: Messages can include an expiry date and are deleted if they are not delivered within this time period.
 * Topic alias: The name of a topic can be replaced with a single number[3].
 
-#### Clouds vs MQTT
-TODO
-
-#### MQTTnet
-
-#### Tools
+#### Tools useful for testing and playing
 * Multimeter: https://github.com/chkr1011/mqttMultimeter
 
- TODO:
-More about https://github.com/dotnet/MQTTnet
+TODO:
+- More about https://github.com/dotnet/MQTTnet
+- MQTT vs Clouds
 
 #### WARNING!
 Not thread-safe implementation.
@@ -206,3 +194,4 @@ Sources:
 [4] https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/  
 [5] https://www.hivemq.com/blog/mqtt-essentials-part-7-persistent-session-queuing-messages/  
 [6] https://www.rabbitmq.com/mqtt.html  
+[7] https://chat.openai.com/chat

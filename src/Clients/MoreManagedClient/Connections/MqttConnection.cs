@@ -45,6 +45,7 @@ public sealed class MqttConnection
         _client.DisconnectedAsync += HandleDisconnection;
         
         _clientOptions = new ManagedMqttClientOptionsBuilder()
+            .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
             .WithClientOptions(mqttClientOptions)
             .Build();
     }
